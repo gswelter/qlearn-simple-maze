@@ -1,0 +1,5 @@
+*.kate-swp
+__pycache__
+*.*~
+fig*.png
+.ipynb_checkpoints/

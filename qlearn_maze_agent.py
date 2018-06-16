@@ -3,7 +3,37 @@ import matplotlib.pyplot as plt
 
 class QLearnAgent:
     
-    def __init__(self, maze_matrix, action_array, r_goal):
+    '''
+    Q-learning method to solve a simple maze puzzle.
+    ================================================
+    
+        The Maze is given by a NxM array where its values represent the penalties or 
+    of a given position on the board (state) and its coordinates represent the states.
+     
+     
+    Game rules
+    ----------
+     
+        1. Game starts at a random position on the board
+        2. The goal is to reach the blue position with maximum possible accumulated points
+        3. The player can move *UP*, *DOWN*, *LEFT*, or *RIGHT*; moves off the board are not allowed
+        4. In each new position, the player receives a penalty (negative values) or a reward (positive values)
+        5. The most positive value is the goal of the game; the game ends when the player reaches the goal state        
+     
+    
+    '''
+    
+    def __init__(self, maze_matrix, action_array):
+        
+        '''
+        Inputs:
+        -------
+        
+            *maze_matrix*: 2d numpy array. Positions of the array represent the states of the game, while the values represent the reward (or penalties) of each state.
+            
+            *action_array*: 1d numpy array. The actions that change the state of the player to move UP, DOWN, LEFT, or RIGHT.
+            
+        '''
        
         self.maze = maze_matrix
         S, R, m = self.__transform_maze_matrix(maze_matrix)
@@ -12,13 +42,15 @@ class QLearnAgent:
         self.m = m
         self.A = self.__validate_actions(self.S, action_array)
        
-        self.r_goal = r_goal
+        self.r_goal = np.abs(self.R).max()
         
             
     def __transform_maze_matrix(self, maze_matrix):
-        """
-        Utility to transform matrix into S and R.
-        """
+        
+        '''
+        Utility to transform matrix into S (state array) and R (reward array).
+        '''
+        
         nx, ny = maze_matrix.shape
         m = 10**int(np.ceil(np.log10(ny)))
 
@@ -37,6 +69,10 @@ class QLearnAgent:
         return S, R, m
 
     def __validate_actions(self, S, A):
+        
+        '''
+        Masking values of the action array that leads the player off the board.
+        '''
 
         S = np.asarray(S)
         A = np.asarray(A)
@@ -58,16 +94,46 @@ class QLearnAgent:
         return A1    
 
     def __xyflat_to_xypairs(self, xyflat, m=10):
+        
+        '''
+        Transform a flattened state array into x and y coordinates.
+        '''
+        
         xyflat = np.array(xyflat)
         y = xyflat // m
         x = np.mod(xyflat, m)
         return x, y    
     
     def action(self, s, a):
+        
+        '''
+        Apply the action *a* on the state *s*.
+        '''
+        
         return s + a    
     
-    def train(self, nmax_episodes=100, alpha=0.3, gamma=0.6, Q_init=None,
+    def train(self, nmax_episodes=100, alpha=0.3, gamma=0.6, Qinit=None,
               l1=100, l2=40, pmax=0.3, pmin=0.02, random_state=666):
+        
+        '''
+        The training function
+        ---------------------
+        
+        *nmax_episodes*: Max number of episodes to train
+        
+        *alpha*: The learning rate
+        
+        *gamma*: Discounted future reward
+        
+        *Qinit*: Initial values for the Q table
+        
+        *l1*, *l2*: Decay-rate for exploration/exploitation. *l1* regards the number of episodes played during training, whereas *l2* regards the number of steps in each episode.
+        
+        *pmax*, *pmax*: Max and min probabilities of taking a random action (exploration/exploitation)
+        
+        *random_state*: random seed
+        
+        '''
         
         self.nmax_episodes = nmax_episodes
         self.alpha = alpha
@@ -77,15 +143,16 @@ class QLearnAgent:
         assert pmin < pmax, '0 <= pmin < pmax <= 1'
         assert pmin >= 0., '0 <= pmin < pmax <= 1'
         
-        if Q_init is None:
+        if Qinit is None:
             np.random.seed(random_state)
             self.Q = np.random.rand(self.A.shape[0], self.A.shape[1])
+            
         else:
-            assert np.shape(Q_init) == (self.A.shape[0], self.A.shape[1]), 'Q shape must be "(len(S), len(A))"'
-            self.Q = np.array(Q_init)
+            assert np.shape(Qinit) == (self.A.shape[0], self.A.shape[1]), 'Q shape must be "(len(S), len(A))"'
+            self.Q = np.array(Qinit)
 
         self.Q = np.ma.masked_where(self.A.mask, self.Q)
-        self.Q_init = self.Q.copy()       
+        self.Qinit = self.Q.copy()       
         self.err_q = np.zeros(self.nmax_episodes)
        
         self.n_iter = 0
@@ -120,7 +187,7 @@ class QLearnAgent:
             
             if r == self.r_goal:
                 
-                self.err_q[self.n_episodes] = np.sum((self.Q_init - self.Q)**2)
+                self.err_q[self.n_episodes] = np.sum((self.Qinit - self.Q)**2)
                 # estimate the thorugh Q_star instead
                 
                 self.n_episodes += 1
@@ -149,7 +216,12 @@ class QLearnAgent:
         
     def play(self, s, max_episodes=100, verbose=True):
         
-        i_s = np.where(self.S == s)[0].take(0) # 0
+        '''
+        Plays the game for a Initial state *s*.
+        
+        '''
+        
+        i_s = np.where(self.S == s)[0].take(0) 
         
         #a = self.A[self.Q_star[i_s]]
         a = self.A_star[i_s]
@@ -196,6 +268,10 @@ class QLearnAgent:
     
     def plot(self, s, max_episodes=100, verbose=False):
         
+        '''
+        Plots the result of a game played.
+        '''
+        
         s_arr, a_arr, r_arr = self.play(s, max_episodes, verbose=verbose)
         x, y = self.__xyflat_to_xypairs(xyflat=s_arr, m=self.m)
         
@@ -211,6 +287,10 @@ class QLearnAgent:
         plt.show()
     
     def multi_plot(self, slist, basename='_fig'):
+        
+        '''
+        Plots and saves the figures.
+        '''
 
         vmax = np.abs(self.R).max()
         vmin = -vmax

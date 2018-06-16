@@ -145,7 +145,7 @@ class QLearnAgent:
             
         self.Q_star = np.argmax(self.Q, axis=1)
         self.A_star = np.array([self.A[i,iq] for (i,iq) in enumerate(self.Q_star)]).astype(int)        
-        self.err_q = self.err_q[0] / agent.err_q
+        self.err_q = self.err_q[0] / self.err_q
         
     def play(self, s, max_episodes=100, verbose=True):
         
@@ -240,10 +240,10 @@ class QLearnAgent:
                 ax = fig.add_subplot(111)
                 ax.pcolor(self.maze.T, cmap=plt.cm.RdYlBu, vmin=vmin, vmax=vmax)
                 ax.plot(x[:j]+0.5, y[:j]+0.5, 'k-o')        
-                ax.plot(x[0]+0.5, y[0]+0.5, 'k*', ms=15)
+                ax.plot(x[0]+0.5, y[0]+0.5, 'r*', ms=15)
 
                 if j == ns:  
-                    ax.plot(x[-1]+0.5, y[-1]+0.5, 'kH', ms=15)
+                    ax.plot(x[-1]+0.5, y[-1]+0.5, 'rH', ms=15)
 
                 ax.grid()
 

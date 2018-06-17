@@ -7,8 +7,8 @@ class QLearnAgent:
     Q-learning method to solve a simple maze puzzle.
     ================================================
     
-        The Maze is given by a NxM array where its values represent the penalties or 
-    of a given position on the board (state) and its coordinates represent the states.
+        The Maze is given by a nx by ny array where its values represent the penalties or 
+    rewards of a given position on the board (state) and its coordinates represent the states.
      
      
     Game rules
@@ -29,8 +29,8 @@ class QLearnAgent:
         Inputs:
         -------
         
-            *maze_matrix*: 2d numpy array. Positions of the array represent the states of the game, while the values represent the reward (or penalties) of each state.
-            
+            *maze_matrix*: 2d numpy array. Positions of the array represent the states of the game, 
+                while the values represent the reward (or penalties) of each state.            
             *action_array*: 1d numpy array. The actions that change the state of the player to move UP, DOWN, LEFT, or RIGHT.
             
         '''
@@ -119,18 +119,13 @@ class QLearnAgent:
         The training function
         ---------------------
         
-        *nmax_episodes*: Max number of episodes to train
-        
-        *alpha*: The learning rate
-        
-        *gamma*: Discounted future reward
-        
-        *Qinit*: Initial values for the Q table
-        
-        *l1*, *l2*: Decay-rate for exploration/exploitation. *l1* regards the number of episodes played during training, whereas *l2* regards the number of steps in each episode.
-        
-        *pmax*, *pmax*: Max and min probabilities of taking a random action (exploration/exploitation)
-        
+        *nmax_episodes*: Max number of episodes to train        
+        *alpha*: The learning rate        
+        *gamma*: Discounted future reward        
+        *Qinit*: Initial values for the Q table        
+        *l1*, *l2*: Decay-rate for exploration/exploitation. *l1* regards the number of episodes played during training, 
+            whereas *l2* regards the number of steps in each episode.        
+        *pmax*, *pmax*: Max and min probabilities of taking a random action (exploration/exploitation)        
         *random_state*: random seed
         
         '''
